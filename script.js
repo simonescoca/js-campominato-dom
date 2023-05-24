@@ -1,16 +1,20 @@
-// Consegna
-//     L'utente clicca su un bottone che genererà una griglia di gioco quadrata. Ogni cella ha un numero progressivo, da 1 a 100
-//     Ci saranno quindi 10 caselle per ognuna delle 10 righe. Quando l'utente clicca su ogni cella,
-//     la cella cliccata si colora di azzurro ed emetto un messaggio in console con il numero della cella cliccata
-
-// Bonus
-//     Aggiungere una select accanto al bottone di generazione, che fornisca una scelta tra tre diversi livelli di difficoltà:
-//     con difficoltà 1 => 100 caselle, con un numero compreso tra 1 e 100, divise in 10 caselle per 10 righe
-//     con difficoltà 2 => 81 caselle, con un numero compreso tra 1 e 81, divise in 9 caselle per 9 righe
-//     con difficoltà 3 => 49 caselle, con un numero compreso tra 1 e 49, divise in 7 caselle per 7 righe
+// In seguito l'utente clicca su una cella: se il numero è presente nella lista dei numeri generati,
+// abbiamo calpestato una bomba e la cella si colora di rosso e la partita termina
+// Altrimenti la cella cliccata si colora di azzurro e l'utente può continuare a cliccare sulle altre celle
+// La partita termina quando il giocatore clicca su una bomba o quando raggiunge il numero massimo possibile di numeri consentiti (ovvero quando ha rivelato tutte le celle che non sono bombe)
+// Al termine della partita il software deve comunicare il punteggio, cioè il numero di volte che l’utente ha cliccato su una cella che non era una bomba
 
 const ulElement = document.getElementById ("ul")
 const button = document.getElementById ("button")
+
+
+// EVENT LISTENERS ///////////////////////////////////////
+
+button.addEventListener ("click", 
+    function () {
+        generateGrid()
+    }
+)
 
 // FUNCTIONS ////////////////////////////////////////////
 
@@ -22,11 +26,10 @@ const button = document.getElementById ("button")
  * @returns the li element with upper features
  */
 
-function createLiElement (index, liStyle, liToggleClass) {
+function createLiElement (index, liStyle) {
     const liElement = document.createElement ("li")
     liElement.append (index)
     liElement.classList.add (liStyle)
-    liElement.classList.toggle (liToggleClass)
     return liElement
 }
 
@@ -35,27 +38,55 @@ function createLiElement (index, liStyle, liToggleClass) {
  */
 
 function generateGrid () {
+    ulElement.classList.add ("my_ul")
     ulElement.innerHTML = ""
 
+    const bombs = randomNotRepeatedNumbers (100, 16)
+
     for (let i = 0 ; i < 100 ; i++) {
-        const finalLiElement = createLiElement ((i + 1), "cell", "selected")
+        const finalLiElement = createLiElement ((i + 1), "cell")
         ulElement.appendChild (finalLiElement)
 
         finalLiElement.addEventListener ("click",
             function () {
                 const selectCell = i + 1
-                console.log ("Cella selezionata: " + selectCell)
-                finalLiElement.classList.add ("cell-active")
+                console.log ("Cella selezionata:", selectCell)
+
+                let youLost = false
+
+                while (!youLost) {
+                    finalLiElement.classList.add ("cell-active-grey")
+
+                    if (bombs.includes (selectCell)) {
+                        youLost = true
+                        console.log ("Sei schioppato bro")
+                        finalLiElement.classList.add ("cell-active-red")
+                    }
+                }
+                if (youLost) {
+                    return
+                }
             }
         )
     }
 }
 
-// EVENT LISTENERS ///////////////////////////////////////
+function randomNotRepeatedNumbers (arrayLength, arrayResultLength) {
+    const array = []
 
-button.addEventListener ("click", 
-    function () {
-        ulElement.classList.add ("my_ul")
-        generateGrid()
+    for (let i = 0 ; i < arrayLength ; i++) {
+        const arrayElement = i + 1
+        array.push (arrayElement)
     }
-)
+
+    const arrayResult = []
+
+    while (arrayResult.length < arrayResultLength) {
+        const arrayResultElemet = array [Math.floor (Math.random() * array.length)]
+        if (!arrayResult.includes (arrayResultElemet)) {
+            arrayResult.push (arrayResultElemet)
+        }
+    }
+    console.log(arrayResult)
+    return arrayResult
+}
