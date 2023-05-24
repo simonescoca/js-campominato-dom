@@ -1,15 +1,10 @@
-// In seguito l'utente clicca su una cella: se il numero è presente nella lista dei numeri generati,
-// abbiamo calpestato una bomba e la cella si colora di rosso e la partita termina
-// Altrimenti la cella cliccata si colora di azzurro e l'utente può continuare a cliccare sulle altre celle
-// La partita termina quando il giocatore clicca su una bomba o quando raggiunge il numero massimo possibile di numeri consentiti (ovvero quando ha rivelato tutte le celle che non sono bombe)
-// Al termine della partita il software deve comunicare il punteggio, cioè il numero di volte che l’utente ha cliccato su una cella che non era una bomba
+// Al termine della partita il software deve comunicare il punteggio
 
 const ulElement = document.getElementById ("ul")
 const button = document.getElementById ("button")
 
 
 // EVENT LISTENERS ///////////////////////////////////////
-
 button.addEventListener ("click", 
     function () {
         generateGrid()
@@ -17,7 +12,6 @@ button.addEventListener ("click",
 )
 
 // FUNCTIONS ////////////////////////////////////////////
-
 /**
  * Creates a li within an index, adds eventual classes
  * @param index the index
@@ -33,9 +27,6 @@ function createLiElement (index, liStyle) {
     return liElement
 }
 
-/**
- * Generates 100 lis in the ul, and resets them to 0 before
- */
 
 function generateGrid () {
     ulElement.classList.add ("my_ul")
@@ -43,34 +34,73 @@ function generateGrid () {
 
     const bombs = randomNotRepeatedNumbers (100, 16)
 
+    let gameOver = false
+    document.getElementById ("alert").classList.remove ("alert-lost")
+    document.getElementById ("alert").classList.remove ("alert-victory")
+    document.getElementById ("alert").innerHTML = ""
+
+    document.getElementById ("score").classList.remove ("score-lost")
+    document.getElementById ("score").classList.remove ("score-victory")
+    document.getElementById ("score").innerHTML = ""
+
+    let score = 0
+
     for (let i = 0 ; i < 100 ; i++) {
         const finalLiElement = createLiElement ((i + 1), "cell")
         ulElement.appendChild (finalLiElement)
 
         finalLiElement.addEventListener ("click",
             function () {
-                const selectCell = i + 1
-                console.log ("Cella selezionata:", selectCell)
-
-                let youLost = false
-
-                while (!youLost) {
-                    finalLiElement.classList.add ("cell-active-grey")
-
-                    if (bombs.includes (selectCell)) {
-                        youLost = true
-                        console.log ("Sei schioppato bro")
-                        finalLiElement.classList.add ("cell-active-red")
-                    }
-                }
-                if (youLost) {
+                if (gameOver) {
                     return
+                }
+                
+                const selectCell = i + 1
+                if (bombs.includes (selectCell)) {
+                    gameOver = true
+                    finalLiElement.classList.add ("cell-active-red")
+                
+                    const myAlert = document.getElementById ("alert")
+                    myAlert.innerHTML = "GAME OVER! YOU LOST"
+                    myAlert.classList.add ("alert-lost")
+                
+                    document.getElementById ("header").classList.remove("mb-5")
+                    document.getElementById ("header").classList.add("mb-3")
+
+                    document.getElementById ("score").classList.add ("score-lost")
+                    document.getElementById ("score").innerHTML = "SCORE " + score
+
+                } else {
+                    if (!finalLiElement.classList.contains ("cell-active-grey")) {
+                        score++
+                    }
+                    finalLiElement.classList.add ("cell-active-grey")
+                }
+
+                if (score > 83) {
+                    gameOver = true
+
+                    const myAlert = document.getElementById ("alert")
+                    myAlert.innerHTML = "GAME OVER! YOU WON"
+                    myAlert.classList.add ("alert-victory")
+                
+                    document.getElementById ("header").classList.remove("mb-5")
+                    document.getElementById ("header").classList.add("mb-3")
+                
+                    document.getElementById ("score").classList.add ("score-victory")
+                    document.getElementById ("score").innerHTML = "SCORE " + score
                 }
             }
         )
     }
 }
 
+/**
+ * By an array of itegers positive numbers, arrayLength elements long, creates another array with random numbers not repeated twice.
+ * @param {number} arrayLength initial array's length
+ * @param {number} arrayResultLength result array's lenght
+ * @returns {array} the array result
+ */
 function randomNotRepeatedNumbers (arrayLength, arrayResultLength) {
     const array = []
 
@@ -87,6 +117,5 @@ function randomNotRepeatedNumbers (arrayLength, arrayResultLength) {
             arrayResult.push (arrayResultElemet)
         }
     }
-    console.log(arrayResult)
     return arrayResult
 }
