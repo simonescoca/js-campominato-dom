@@ -92,8 +92,13 @@ main{
     background-color: rgb(255, 0, 0);
 }
 
-.cell-active{
+.cell-active-red{
     background-color: rgb(255, 0, 0);
+    color: white;
+}
+
+.cell-active-grey{
+    background-color: rgb(55, 55, 55);
     color: white;
 }
 
